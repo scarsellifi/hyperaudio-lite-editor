@@ -58,7 +58,7 @@ class DeepgramService extends HTMLElement {
       "Phone call": "phonecall",
       "Voicemail": "voicemail",
       "Finance": "finance",
-      "Conversational AI": "conversationalai",   
+      "Conversational AI": "conversationalai",
     }
 
     counter = 0
@@ -73,7 +73,7 @@ class DeepgramService extends HTMLElement {
       selectModel.appendChild(option);
       counter += 1;
     } );
-    
+
   }
 
   clearMediaUrl(event) {
@@ -85,12 +85,12 @@ class DeepgramService extends HTMLElement {
     event.preventDefault();
     document.querySelector('#file').value = "";
   }
-  
+
   updatePlayerWithLocalFile(event) {
     const file = document.querySelector('[name=file]').files[0];
     // Create a new FileReader instance
     const reader = new FileReader();
-    
+
     reader.readAsArrayBuffer(file);
     let blob = null;
 
@@ -159,7 +159,7 @@ class DeepgramService extends HTMLElement {
         </select>
         <!--<div class="form-control w-48">
           <label class="cursor-pointer label">
-            <span class="label-text">Advanced settings</span> 
+            <span class="label-text">Advanced settings</span>
             <input id="advanced-settings-check" type="checkbox" class="toggle toggle-primary" />
           </label>
         </div>-->
@@ -201,8 +201,8 @@ function fetchData(token, media, tier, language, model) {
   } else {
     url = `https://api.deepgram.com/v1/listen?model=${model}&tier=${tier}&punctuate=true&diarize=true&summarize=true&detect_topics=true&language=${language}`
   }
-  
-  fetch(url, {  
+
+  fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': 'Token '+token+'',
@@ -218,7 +218,7 @@ function fetchData(token, media, tier, language, model) {
     } else {
       console.log("response ok");
     }
-    
+
     return response.json();
   })
   .then(json => {
@@ -233,7 +233,7 @@ function fetchData(token, media, tier, language, model) {
     if (error.indexOf("401") > 0 || (error.indexOf("400") > 0 && tier === "base")) {
       document.querySelector('#hypertranscript').innerHTML = '<div class="vertically-centre"><img src="error.svg" width="50" alt="error" style="margin: auto; display: block;"><br/><center>Sorry.<br/>It appears that the media URL does not exist<br/> or the token is invalid.</center></div>';
     }
-    
+
     if (error.indexOf("400") > 0 && tier === "enhanced") {
       tier = "base";
       fetchData(token, media, tier, language, model);
@@ -258,7 +258,7 @@ function fetchDataLocal(token, file, tier, language, model) {
 
   // Create a new FileReader instance
   const reader = new FileReader();
-  
+
   reader.readAsArrayBuffer(file);
   let blob = null;
 
@@ -286,10 +286,16 @@ function fetchDataLocal(token, file, tier, language, model) {
             throw new Error(response.status);
           } else {
             console.log("response ok");
+            ;
           }
           return response.json();
         })
         .then(json => {
+          const storeRawTranscriptInLocalStorageEvent = new CustomEvent('storeRawTranscriptInLocalStorageEvent', {detail: {
+            data: json
+          }});
+          document.dispatchEvent(storeRawTranscriptInLocalStorageEvent);
+          //storeRawTranscriptInLocalStorage(json)
           parseData(json);
           document.querySelector("#summary").innerHTML = extractSummary(json);
           document.querySelector("#topics").innerHTML = extractTopics(json).join(", ");
@@ -297,21 +303,21 @@ function fetchDataLocal(token, file, tier, language, model) {
         .catch(function (error) {
           console.dir("error is : "+error);
           error = error + "";
-      
+
           if (error.indexOf("401") > 0 || (error.indexOf("400") > 0 && tier === "base")) {
             document.querySelector('#hypertranscript').innerHTML = '<div class="vertically-centre"><img src="error.svg" width="50" alt="error" style="margin: auto; display: block;"><br/><center>Sorry.<br/>It appears that the token is invalid.</center></div>';
           }
-          
+
           if (error.indexOf("400") > 0 && tier === "enhanced") {
             tier = "base";
             fetchDataLocal(token, file, tier, language, model);
           }
-      
+
           this.dataError = true;
           document.querySelector('#hypertranscript').innerHTML = '<div class="vertically-centre"><img src="error.svg" width="50" alt="error" style="margin: auto; display: block;"><br/><center>Sorry.<br/>An unexpected error has occurred.</center></div>';
         })
       } else {
-        document.querySelector('#hypertranscript').innerHTML = ''; 
+        document.querySelector('#hypertranscript').innerHTML = '';
       }
     });
   });
@@ -348,10 +354,10 @@ function parseData(json) {
     }
 
     // change of speaker or first word
-    if ((showDiarization === true && index > 0 && element.speaker !== wordData[index-1].speaker) || index === 0) { 
+    if ((showDiarization === true && index > 0 && element.speaker !== wordData[index-1].speaker) || index === 0) {
       let previousWord = punctuatedWords[index-1];
       let previousWordLastChar = null;
-      
+
       if (index > 0) {
         previousWordLastChar = previousWord.charAt(previousWord.length-1);
       }
@@ -369,7 +375,7 @@ function parseData(json) {
   });
 
   hyperTranscript +=  "\n </p> \n </section>\n</article>\n ";
-  
+
   document.querySelector("#hypertranscript").innerHTML = hyperTranscript;
 
   let showSpeakers = document.querySelector('#show-speakers');

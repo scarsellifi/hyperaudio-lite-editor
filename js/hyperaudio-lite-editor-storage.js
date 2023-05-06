@@ -87,7 +87,7 @@ function loadLocalStorageOptions(storage = window.localStorage) {
 
   let fileSelect = document.querySelector("#load-localstorage-filename");
   let filePicker = document.querySelector("#file-picker");
-  
+
   fileSelect.innerHTML = '<option value="default">Select file…</option>';
   filePicker.innerHTML = "";
 
@@ -151,7 +151,7 @@ function loadHyperTranscriptFromLocalStorage(fileindex, storage = window.localSt
 }
 
 function loadSummaryFromLocalStorage(fileindex, target, storage = window.localStorage){
-  
+
   let hypertranscriptstorage = JSON.parse(storage.getItem(storage.key(fileindex)));
 
   console.log("hypertranscriptstorage");
@@ -161,6 +161,16 @@ function loadSummaryFromLocalStorage(fileindex, target, storage = window.localSt
   console.log(hypertranscriptstorage.topics);
 
   if (hypertranscriptstorage) {
-    target.setAttribute("title", hypertranscriptstorage.summary + "\n\nTopics: " + getTopicsString(hypertranscriptstorage.topics)); 
+    target.setAttribute("title", hypertranscriptstorage.summary + "\n\nTopics: " + getTopicsString(hypertranscriptstorage.topics));
   }
 }
+
+function storeRawTranscriptInLocalStorage(data){
+window.localStorage.setItem("deepgram-current-response", data)
+}
+
+const evenTstoreRawTranscriptInLocalStorage = new Event("storeRawTranscriptInLocalStorage")
+window.document.addEventListener('storeRawTranscriptInLocalStorageEvent',function execute(event) {
+  console.log(`storeRawTranscriptInLocalStorage execution ${JSON.stringify(event.detail.data)}`)
+  storeRawTranscriptInLocalStorage(JSON.stringify(event.detail.data))
+} , false);
