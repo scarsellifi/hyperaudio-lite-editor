@@ -4,20 +4,27 @@
  * @param {string} video - the url of the video
  * @param {string} summary - the text of the summary
  * @param {array} summary - an array of topics
+ * @param {string} raw_data - the raw data from the deepgram api
+ * @param {string} exportJson - exportJson the json of the hypertranscript
+ * @param {string} name - the name of the hypertranscript
  * @return {void}
  */
 class HyperTranscriptStorage {
-  constructor(hypertranscript, video, summary, topics) {
+  constructor(hypertranscript, video, summary, topics, raw_data, hyperaudioObject, name) {
     this.hypertranscript = hypertranscript;
     this.video = video;
     this.summary = summary;
     this.topics = topics;
+    this.raw_initial_data = raw_data;
+    this.hyperaudioObject = hyperaudioObject
+    this.name = name
   }
 }
 
 // We should move these from global scope
 const fileExtension = ".hyperaudio";
 let lastFilename = null;
+
 
 /*
  * Render the HyperTranscript in the DOM
@@ -78,7 +85,9 @@ function saveHyperTranscriptToLocalStorage(
   let video = document.getElementById(videoDomId).src;
   let summary = document.getElementById("summary").innerHTML;
   let topics = document.getElementById("topics").innerHTML.split(", ");
-  let hypertranscriptstorage = new HyperTranscriptStorage(hypertranscript, video, summary, topics);
+  let raw_initial_data = window.localStorage.getItem("deepgram-current-response");
+  let hyperaudioObject = htmlToJson(document.getElementById('hypertranscript'))
+  let hypertranscriptstorage = new HyperTranscriptStorage(hypertranscript, video, summary, topics, raw_initial_data, hyperaudioObject, filename);
 
   storage.setItem(filename+fileExtension, JSON.stringify(hypertranscriptstorage));
 }
@@ -165,6 +174,12 @@ function loadSummaryFromLocalStorage(fileindex, target, storage = window.localSt
   }
 }
 
+function clean_up_RawTranscript(){
+  //delete the raw transcript from local storage
+  window.localStorage.setItem("deepgram-current-response", "")
+}
+clean_up_RawTranscript()
+
 function storeRawTranscriptInLocalStorage(data){
 window.localStorage.setItem("deepgram-current-response", data)
 }
@@ -174,3 +189,5 @@ window.document.addEventListener('storeRawTranscriptInLocalStorageEvent',functio
   console.log(`storeRawTranscriptInLocalStorage execution ${JSON.stringify(event.detail.data)}`)
   storeRawTranscriptInLocalStorage(JSON.stringify(event.detail.data))
 } , false);
+
+
