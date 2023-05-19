@@ -36,7 +36,7 @@ function renderTranscript(
   hyperaudio();
 }
 
-function getLocalStorageSaveFilename(url){
+export function getLocalStorageSaveFilename(url){
   let filename = null;
 
   if (lastFilename === null) {
@@ -67,7 +67,7 @@ function getTopicsString(topics) {
  * @return {void}
  */
 
-function saveHyperTranscriptToLocalStorage(
+export function saveHyperTranscriptToLocalStorage(
   filename,
   hypertranscriptDomId = 'hypertranscript',
   videoDomId = 'hyperplayer',
@@ -83,11 +83,11 @@ function saveHyperTranscriptToLocalStorage(
   storage.setItem(filename+fileExtension, JSON.stringify(hypertranscriptstorage));
 }
 
-function loadLocalStorageOptions(storage = window.localStorage) {
+export function loadLocalStorageOptions(storage = window.localStorage) {
 
   let fileSelect = document.querySelector("#load-localstorage-filename");
   let filePicker = document.querySelector("#file-picker");
-  
+
   fileSelect.innerHTML = '<option value="default">Select file…</option>';
   filePicker.innerHTML = "";
 
@@ -99,14 +99,14 @@ function loadLocalStorageOptions(storage = window.localStorage) {
     }
   }
 
-  setFileSelectListeners();
+ setFileSelectListeners();
 
   if (storage.length === 0) {
     filePicker.insertAdjacentHTML("beforeend", `<li style="padding-left:16px; padding-top:16px">No files saved.</li>`);
   }
 }
 
-function setFileSelectListeners() {
+export function setFileSelectListeners() {
   let files = document.querySelectorAll('.file-item');
 
   console.log("setting listeners");
@@ -140,7 +140,7 @@ function fileSelectHandleHover(event) {
   return false;
 }
 
-function loadHyperTranscriptFromLocalStorage(fileindex, storage = window.localStorage){
+export function loadHyperTranscriptFromLocalStorage(fileindex, storage = window.localStorage){
   let hypertranscriptstorage = JSON.parse(storage.getItem(storage.key(fileindex)));
 
   if (hypertranscriptstorage) {
@@ -151,7 +151,7 @@ function loadHyperTranscriptFromLocalStorage(fileindex, storage = window.localSt
 }
 
 function loadSummaryFromLocalStorage(fileindex, target, storage = window.localStorage){
-  
+
   let hypertranscriptstorage = JSON.parse(storage.getItem(storage.key(fileindex)));
 
   console.log("hypertranscriptstorage");
@@ -161,6 +161,6 @@ function loadSummaryFromLocalStorage(fileindex, target, storage = window.localSt
   console.log(hypertranscriptstorage.topics);
 
   if (hypertranscriptstorage) {
-    target.setAttribute("title", hypertranscriptstorage.summary + "\n\nTopics: " + getTopicsString(hypertranscriptstorage.topics)); 
+    target.setAttribute("title", hypertranscriptstorage.summary + "\n\nTopics: " + getTopicsString(hypertranscriptstorage.topics));
   }
 }

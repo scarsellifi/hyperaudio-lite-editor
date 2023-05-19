@@ -1237,9 +1237,10 @@ If you are creating an open source application under a license compatible with t
     </div>
   </div>
 
-  <script src="./js/hyperaudio-lite-editor-storage.js"></script>
 
-  <script>
+
+  <script type="module">
+    import {loadLocalStorageOptions, getLocalStorageSaveFilename, loadHyperTranscriptFromLocalStorage, setFileSelectListeners, saveHyperTranscriptToLocalStorage} from './js/hyperaudio-lite-editor-storage.js';
 
     document.querySelector('#file-dropdown').insertAdjacentHTML("beforeend", '<hr class="my-2 h-0 border border-t-0 border-solid border-neutral-700 opacity-25 dark:border-neutral-200" /><li class="menu-title"><spa>Local Storage</span></li><li><label for="file-save-dialog">Save to Local Storage</label></li><li><label for="file-load-dialog">Load from Local Storage</label></li>');
 
