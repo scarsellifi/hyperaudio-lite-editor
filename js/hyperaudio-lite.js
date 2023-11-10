@@ -10,24 +10,49 @@ function nativePlayer(instance) {
   this.paused = true;
 
   this.getTime = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(this.player.currentTime);
     });
-  }
+  };
 
-  this.setTime = (seconds) => {
+  this.setTime = seconds => {
     this.player.currentTime = seconds;
-  }
+  };
 
   this.play = () => {
     this.player.play();
     this.paused = false;
-  }
+  };
 
   this.pause = () => {
     this.player.pause();
     this.paused = true;
-  }
+  };
+}
+
+function spotifyPlayer(instance) {
+  this.getTime;
+  window.onSpotifyIframeApiReady = IFrameAPI => {
+    console.log(instance);
+    const element = document.getElementById('hyperplayer');
+
+    const srcValue = element.getAttribute('src');
+    const match = srcValue.match(/track\/(.*?)\?/);
+    const trackID = match ? match[1] : null;
+
+    console.log(trackID);
+    const options = {
+      uri: `spotify:track:${trackID}`,
+    };
+    const callback = player => {
+      player.addListener('playback_update', e => {
+        this.getTime = `${parseInt(e.data.position / 1000, 10)}`;
+        console.log(this.getTime);
+      });
+    };
+
+    IFrameAPI.createController(element, options, callback);
+  };
 }
 
 function soundcloudPlayer(instance) {
@@ -37,26 +62,26 @@ function soundcloudPlayer(instance) {
   this.paused = true;
 
   this.getTime = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.player.getPosition(ms => {
         resolve(ms / 1000);
       });
     });
-  }
+  };
 
-  this.setTime = (seconds) => {
+  this.setTime = seconds => {
     this.player.seekTo(seconds * 1000);
-  }
+  };
 
   this.play = () => {
     this.player.play();
     this.paused = false;
-  }
+  };
 
   this.pause = () => {
     this.player.pause();
     this.paused = true;
-  }
+  };
 }
 
 function videojsPlayer(instance) {
@@ -66,24 +91,24 @@ function videojsPlayer(instance) {
   this.paused = true;
 
   this.getTime = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(this.player.currentTime());
     });
-  }
+  };
 
-  this.setTime = (seconds) => {
+  this.setTime = seconds => {
     this.player.currentTime(seconds);
-  }
+  };
 
   this.play = () => {
     this.player.play();
     this.paused = false;
-  }
+  };
 
   this.pause = () => {
     this.player.pause();
     this.paused = true;
-  }
+  };
 }
 
 function vimeoPlayer(instance) {
@@ -92,28 +117,28 @@ function vimeoPlayer(instance) {
   this.player.setCurrentTime(0);
   this.paused = true;
   this.player.ready().then(instance.checkPlayHead);
-  this.player.on('play',instance.preparePlayHead);
-  this.player.on('pause',instance.pausePlayHead);
+  this.player.on('play', instance.preparePlayHead);
+  this.player.on('pause', instance.pausePlayHead);
 
   this.getTime = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(this.player.getCurrentTime());
     });
-  }
+  };
 
-  this.setTime = (seconds) => {
+  this.setTime = seconds => {
     this.player.setCurrentTime(seconds);
-  }
+  };
 
   this.play = () => {
     this.player.play();
     this.paused = false;
-  }
+  };
 
   this.pause = () => {
     this.player.pause();
     this.paused = true;
-  }
+  };
 }
 
 function youtubePlayer(instance) {
@@ -126,7 +151,8 @@ function youtubePlayer(instance) {
 
   const previousYTEvent = window.onYouTubeIframeAPIReady;
   window.onYouTubeIframeAPIReady = () => {
-    if (typeof previousYTEvent !== 'undefined') { // used for multiple YouTube players
+    if (typeof previousYTEvent !== 'undefined') {
+      // used for multiple YouTube players
       previousYTEvent();
     }
 
@@ -150,37 +176,38 @@ function youtubePlayer(instance) {
   };
 
   this.getTime = () => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(this.player.getCurrentTime());
     });
-  }
+  };
 
-  this.setTime = (seconds) => {
+  this.setTime = seconds => {
     this.player.seekTo(seconds, true);
-  }
+  };
 
   this.play = () => {
     this.player.playVideo();
-  }
+  };
 
   this.pause = () => {
     this.player.pauseVideo();
-  }
+  };
 }
 
 const hyperaudioPlayerOptions = {
-  "native": nativePlayer,
-  "soundcloud": soundcloudPlayer,
-  "youtube": youtubePlayer,
-  "videojs": videojsPlayer,
-  "vimeo": vimeoPlayer
-}
+  native: nativePlayer,
+  soundcloud: soundcloudPlayer,
+  youtube: youtubePlayer,
+  videojs: videojsPlayer,
+  vimeo: vimeoPlayer,
+  spotify: spotifyPlayer,
+};
 
 function hyperaudioPlayer(playerType, instance) {
   if (playerType !== null && playerType !== undefined) {
     return new playerType(instance);
   } else {
-    alert("data-player-type attribute must be set on player if not native, eg SoundCloud, YouTube, Vimeo, VideoJS")
+    alert('data-player-type attribute must be set on player if not native, eg SoundCloud, YouTube, Vimeo, VideoJS');
   }
 }
 
@@ -191,10 +218,8 @@ class HyperaudioLite {
   }
 
   init = (mediaElementId, minimizedMode, autoscroll, doubleClick, webMonetization, playOnClick) => {
-
     const windowHash = window.location.hash;
     const hashVar = windowHash.substring(1, windowHash.indexOf('='));
-    
 
     if (hashVar === this.transcript.id) {
       this.hashArray = windowHash.substring(this.transcript.id.length + 2).split(',');
@@ -250,7 +275,7 @@ class HyperaudioLite {
 
     const mediaSrc = this.transcript.querySelector('[data-media-src]');
 
-    if (mediaSrc !== null &&  mediaSrc !== undefined) {
+    if (mediaSrc !== null && mediaSrc !== undefined) {
       this.player.src = mediaSrc.getAttribute('data-media-src');
     }
 
@@ -345,16 +370,20 @@ class HyperaudioLite {
       parentElement = parentElement.parentElement;
     }
 
-    if (selection.toString() !== '' && insideTranscript === true && selection.focusNode !== null && selection.anchorNode !== null) {
-      
+    if (
+      selection.toString() !== '' &&
+      insideTranscript === true &&
+      selection.focusNode !== null &&
+      selection.anchorNode !== null
+    ) {
       let fNode = selection.focusNode.parentNode;
       let aNode = selection.anchorNode.parentNode;
 
-      if (aNode.tagName === "P") {
+      if (aNode.tagName === 'P') {
         aNode = selection.anchorNode.nextElementSibling;
       }
 
-      if (fNode.tagName === "P") {
+      if (fNode.tagName === 'P') {
         fNode = selection.focusNode.nextElementSibling;
       }
 
@@ -367,7 +396,7 @@ class HyperaudioLite {
       }
 
       // if the selection starts with a space we want the next element
-      if(selection.toString().charAt(0) == " " && aNode !== null) {
+      if (selection.toString().charAt(0) == ' ' && aNode !== null) {
         aNode = aNode.nextElementSibling;
       }
 
@@ -379,7 +408,7 @@ class HyperaudioLite {
 
         if (fNode !== null && fNode.getAttribute('data-m') !== null) {
           // if the selection ends in a space we want the previous element if it exists
-          if(selection.toString().slice(-1) == " " && fNode.previousElementSibling !== null) {
+          if (selection.toString().slice(-1) == ' ' && fNode.previousElementSibling !== null) {
             fNode = fNode.previousElementSibling;
           }
 
@@ -387,7 +416,6 @@ class HyperaudioLite {
           fNodeDuration = parseInt(fNode.getAttribute('data-d'), 10);
 
           // if the selection starts with a space we want the next element
-
         }
 
         // 1 decimal place will do
@@ -456,18 +484,17 @@ class HyperaudioLite {
   preparePlayHead = () => {
     this.myPlayer.paused = false;
     this.checkPlayHead();
-  }
+  };
 
   pausePlayHead = () => {
     this.clearTimer();
     this.myPlayer.paused = true;
-  }
+  };
 
   checkPlayHead = () => {
-
     this.clearTimer();
 
-    (async (instance) => {
+    (async instance => {
       instance.currentTime = await instance.myPlayer.getTime();
 
       if (instance.highlightedText === true) {
@@ -476,11 +503,10 @@ class HyperaudioLite {
         instance.highlightedText = false;
       }
       // no need to check status if the currentTime hasn't changed
-      
-      instance.checkStatus();
 
+      instance.checkStatus();
     })(this);
-  }
+  };
 
   scrollToParagraph = (currentParentElementIndex, index) => {
     let newPara = false;
@@ -492,7 +518,6 @@ class HyperaudioLite {
     }
 
     if (currentParentElementIndex != this.parentElementIndex) {
-
       if (typeof this.scroller !== 'undefined' && this.autoscroll === true) {
         if (scrollNode !== null) {
           if (typeof this.scrollerContainer !== 'undefined' && this.scrollerContainer !== null) {
@@ -520,8 +545,8 @@ class HyperaudioLite {
       newPara = true;
       this.parentElementIndex = currentParentElementIndex;
     }
-    return(newPara);
-  }
+    return newPara;
+  };
 
   checkStatus = () => {
     //check for end time of shared piece
@@ -529,7 +554,6 @@ class HyperaudioLite {
     let interval = 0;
 
     if (this.myPlayer.paused === false) {
-    
       if (this.end && parseInt(this.end) < parseInt(this.currentTime)) {
         this.myPlayer.pause();
         this.end = null;
@@ -578,7 +602,7 @@ class HyperaudioLite {
         //check for payment pointer
         let activeElements = this.transcript.getElementsByClassName('active');
         let paymentPointer = this.checkPaymentPointer(activeElements[activeElements.length - 1]);
-  
+
         if (paymentPointer !== null) {
           let metaElements = document.getElementsByTagName('meta');
           let wmMeta = document.querySelector("meta[name='monetization']");
@@ -604,7 +628,7 @@ class HyperaudioLite {
   checkPaymentPointer = element => {
     let paymentPointer = null;
 
-    if (typeof(element) != "undefined") {
+    if (typeof element != 'undefined') {
       paymentPointer = element.getAttribute('data-wm');
     }
 
@@ -625,8 +649,7 @@ class HyperaudioLite {
     }
   };
 
-  updateTranscriptVisualState = (currentTime) => {
-    
+  updateTranscriptVisualState = currentTime => {
     let index = 0;
     let words = this.wordArr.length - 1;
 
@@ -663,7 +686,6 @@ class HyperaudioLite {
       }
     });
 
-
     this.parentElements = this.transcript.getElementsByTagName(this.parentTag);
 
     //remove active class from all paras
@@ -683,7 +705,7 @@ class HyperaudioLite {
       if (this.wordArr[index - 1].n.parentNode !== null) {
         this.wordArr[index - 1].n.parentNode.classList.add('active');
       }
-    } 
+    }
 
     // Establish current paragraph index
     let currentParentElementIndex;
