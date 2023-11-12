@@ -30,6 +30,11 @@ function nativePlayer(instance) {
   };
 }
 
+function extractEpisodeID(url) {
+  const match = url.match(/episode\/(.+)$/);
+  return match ? match[1] : null;
+}
+
 function spotifyPlayer(instance) {
   this.getTime;
   window.onSpotifyIframeApiReady = IFrameAPI => {
@@ -37,12 +42,11 @@ function spotifyPlayer(instance) {
     const element = document.getElementById('hyperplayer');
 
     const srcValue = element.getAttribute('src');
-    const match = srcValue.match(/track\/(.*?)\?/);
-    const trackID = match ? match[1] : null;
+    const episodeID = extractEpisodeID(srcValue);
 
-    console.log(trackID);
+    console.log(episodeID);
     const options = {
-      uri: `spotify:track:${trackID}`,
+      uri: `spotify:episode:${episodeID}`,
     };
     const callback = player => {
       player.addListener('playback_update', e => {
